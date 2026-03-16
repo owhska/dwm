@@ -45,7 +45,7 @@ sudo pacman -S --noconfirm tlp acpi brightnessctl
 sudo systemctl enable tlp
 
 # Limite bateria 80%
-sudo sed -i 's/^#START_CHARGE_THRESH_BAT0=.*/START_CHARGE_THRESH_BAT0=40/' /etc/tlp.conf
+sudo sed -i 's/^#START_CHARGE_THRESH_BAT0=.*/START_CHARGE_THRESH_BAT0=79/' /etc/tlp.conf
 sudo sed -i 's/^#STOP_CHARGE_THRESH_BAT0=.*/STOP_CHARGE_THRESH_BAT0=80/' /etc/tlp.conf
 sudo systemctl restart tlp
 
