@@ -48,44 +48,52 @@ wget \
 curl \
 unzip
 
-echo "==== Power management ===="
+echo "==== Power management (TLP) ===="
 sudo pacman -S --noconfirm tlp
 sudo systemctl enable tlp
+
+echo "==== Configurando limite de bateria 80% ===="
+sudo sed -i 's/^#START_CHARGE_THRESH_BAT0=.*/START_CHARGE_THRESH_BAT0=79/' /etc/tlp.conf
+sudo sed -i 's/^#STOP_CHARGE_THRESH_BAT0=.*/STOP_CHARGE_THRESH_BAT0=80/' /etc/tlp.conf
+sudo systemctl restart tlp
 
 echo "==== CPU tools ===="
 sudo pacman -S --noconfirm cpupower
 sudo systemctl enable cpupower
 
-echo "==== Instalando zram ===="
-sudo pacman -S --noconfirm zram-generator
+echo "==== Instalando zram e earlyoom ===="
+sudo pacman -S --noconfirm zram-generator earlyoom
+sudo systemctl enable earlyoom
 
 sudo mkdir -p /etc/systemd/zram-generator.conf.d
-
 sudo bash -c 'cat <<EOF > /etc/systemd/zram-generator.conf.d/zram.conf
 [zram0]
 zram-size = ram / 2
 compression-algorithm = zstd
 EOF'
 
-echo "==== Instalando earlyoom ===="
-sudo pacman -S --noconfirm earlyoom
-sudo systemctl enable earlyoom
+echo "==== Instalando NetworkManager + nm-applet ===="
+sudo pacman -S --noconfirm networkmanager network-manager-applet
+sudo systemctl enable NetworkManager
+sudo systemctl start NetworkManager
 
 echo "==== Instalando yay (AUR helper) ===="
 cd /tmp
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -si --noconfirm
+cd ~
+rm -rf /tmp/yay
 
 echo "==== Criando .xinitrc ===="
 cat <<EOF > ~/.xinitrc
+nm-applet &
 picom &
 exec dwm
 EOF
 
 echo "==== Configurando picom ===="
 mkdir -p ~/.config/picom
-
 cat <<EOF > ~/.config/picom/picom.conf
 backend = "glx";
 vsync = true;
@@ -98,8 +106,7 @@ sudo bash -c 'cat <<EOF > /etc/default/cpupower
 governor="performance"
 EOF'
 
-echo "==== Instalação finalizada ===="
 echo ""
+echo "==== INSTALAÇÃO COMPLETA ===="
 echo "Reinicie o sistema."
-echo "Depois rode:"
-echo "startx"
+echo "Depois rode: startx"
